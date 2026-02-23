@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "👀 Çılgın Gözler",
+  "version": "1.0",
+  "description": "İmlecinizi her yerde takip eden iki göz!",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Çılgın Gözler"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}

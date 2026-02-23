@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Googly Eyes</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 240px;
+    background: #fdf8f0;
+    font-family: 'Nunito', sans-serif;
+    overflow: hidden;
+    border-radius: 16px;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #ff8c42, #ff5f87);
+    padding: 18px 16px 14px;
+    text-align: center;
+    position: relative;
+  }
+
+  .eyes-preview {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .preview-eye {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: white;
+    border: 2.5px solid #1a1008;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    overflow: hidden;
+  }
+
+  .preview-pupil {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #4a3728, #1a0a00);
+    position: relative;
+    animation: lookaround 3s ease-in-out infinite;
+    box-shadow: 0 1px 4px rgba(41, 168, 2, 0.4);
+  }
+
+  .preview-pupil::after {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    position: absolute;
+    top: 2px;
+    left: 2px;
+  }
+
+  .preview-eyelid {
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    height: 50%;
+    background: #f5c18a;
+    border-radius: 38px 38px 0 0;
+    border-top: 2.5px solid #1a1008;
+    border-left: 2.5px solid #1a1008;
+    border-right: 2.5px solid #1a1008;
+    z-index: 2;
+    animation: blinkLid 4s ease-in-out infinite;
+  }
+
+  @keyframes lookaround {
+    0%   { transform: translate(0, 0); }
+    20%  { transform: translate(5px, -3px); }
+    40%  { transform: translate(-4px, 2px); }
+    60%  { transform: translate(3px, 4px); }
+    80%  { transform: translate(-5px, -2px); }
+    100% { transform: translate(0, 0); }
+  }
+
+  @keyframes blinkLid {
+    0%, 85%, 100% { transform: scaleY(1); }
+    90%, 95%      { transform: scaleY(2.2); }
+  }
+
+  h1 {
+    font-family: 'Fredoka One', cursive;
+    color: white;
+    font-size: 20px;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  }
+
+  .subtitle {
+    color: rgba(255,255,255,0.85);
+    font-size: 11px;
+    margin-top: 2px;
+  }
+
+  .body {
+    padding: 16px;
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    border-radius: 12px;
+    padding: 12px 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    margin-bottom: 12px;
+    border: 1.5px solid #f0e8d8;
+  }
+
+  .toggle-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #3a2a1a;
+  }
+
+  .toggle-desc {
+    font-size: 11px;
+    color: #8a7a6a;
+    margin-top: 1px;
+  }
+
+  .toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #d4c8b8;
+    border-radius: 24px;
+    transition: 0.3s;
+  }
+
+  .slider::before {
+    content: '';
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s cubic-bezier(.4,2,.6,1);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+
+  input:checked + .slider {
+    background: linear-gradient(135deg, #ff8c42, #ff5f87);
+  }
+
+  input:checked + .slider::before {
+    transform: translateX(20px);
+  }
+
+  .info {
+    background: #fff8ee;
+    border-radius: 10px;
+    padding: 10px 12px;
+    border: 1.5px solid #f5e4c8;
+    font-size: 11px;
+    color: #7a6a5a;
+    line-height: 1.5;
+  }
+
+  .info strong {
+    color: #ff8c42;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 8px;
+    font-size: 10px;
+    color: #c0b0a0;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyes-preview">
+    <div class="preview-eye">
+      <div class="preview-eyelid"></div>
+      <div class="preview-pupil"></div>
+    </div>
+    <div class="preview-eye">
+      <div class="preview-eyelid"></div>
+      <div class="preview-pupil" style="animation-delay: -1.5s"></div>
+    </div>
+  </div>
+  <h1>Çılgın Gözler</h1>
+  <div class="subtitle">Her zaman izliyor... 👁️</div>
+</div>
+
+<div class="body">
+  <div class="toggle-row">
+    <div>
+      <div class="toggle-label">Gözleri Göster</div>
+      <div class="toggle-desc">Bu sekmede gözleri aç/kapat</div>
+    </div>
+    <label class="toggle-switch">
+      <input type="checkbox" id="toggleEyes" checked>
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="info">
+    👀 Gözler her sayfanın <strong>alt sağ köşesinde</strong> görünür ve imlecinizi takip eder. Ayrıca rastgele kırpışırlar!
+  </div>
+</div>
+
+<div class="footer">Made with ❤️ by Tansu Ozcelebi '26</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
