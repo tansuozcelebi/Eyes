@@ -180,6 +180,60 @@
     transform: translateX(20px);
   }
 
+  .color-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    border-radius: 12px;
+    padding: 12px 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    margin-bottom: 12px;
+    border: 1.5px solid #f0e8d8;
+  }
+
+  .color-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #3a2a1a;
+  }
+
+  .color-desc {
+    font-size: 11px;
+    color: #8a7a6a;
+    margin-top: 1px;
+  }
+
+  .color-picker-wrapper {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+
+  .color-picker-wrapper input[type="color"] {
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18), inset 0 1px 3px rgba(0,0,0,0.1);
+    border: 2.5px solid #1a1008;
+  }
+
+  .color-picker-wrapper input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+
+  .color-picker-wrapper input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 50%;
+  }
+
   .info {
     background: #fff8ee;
     border-radius: 10px;
@@ -231,8 +285,18 @@
     </label>
   </div>
 
+  <div class="color-row">
+    <div>
+      <div class="color-label">Göz Bebeği Rengi</div>
+      <div class="color-desc">İstediğin rengi seç</div>
+    </div>
+    <div class="color-picker-wrapper">
+      <input type="color" id="pupilColor" value="#1a0a00">
+    </div>
+  </div>
+
   <div class="info">
-    👀 Gözler her sayfanın <strong>alt sağ köşesinde</strong> görünür ve imlecinizi takip eder. Ayrıca rastgele kırpışırlar!
+    👀 Gözler her sayfanın <strong>sağ üst köşesinde</strong> görünür ve imlecinizi takip eder. Sürükleyerek taşıyabilirsiniz!
   </div>
 </div>
 

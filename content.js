@@ -14,7 +14,34 @@
       pointer-events: auto;
       user-select: none;
       filter: drop-shadow(0 4px 16px rgba(0,0,0,0.22));
-      transition: opacity 0.3s;
+      transition: opacity 0.3s, transform 0.25s cubic-bezier(.4,1.4,.6,1), filter 0.25s ease;
+      cursor: grab;
+    }
+    #googly-eyes-container.dragging {
+      cursor: grabbing;
+      transform: scale(1.08) translateY(-6px);
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.10));
+    }
+    #googly-eyes-shadow {
+      position: fixed;
+      display: flex;
+      gap: 10px;
+      z-index: 2147483646;
+      pointer-events: none;
+      transition: transform 0.25s cubic-bezier(.4,1.4,.6,1), opacity 0.25s ease;
+      transform: scale(1);
+      opacity: 0;
+    }
+    #googly-eyes-shadow.visible {
+      opacity: 1;
+      transform: scale(0.7);
+    }
+    .shadow-eye {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.08) 60%, transparent 100%);
+      filter: blur(4px);
     }
     #googly-eyes-container.hidden {
       opacity: 0;
@@ -39,7 +66,7 @@
       border-radius: 50%;
       background: radial-gradient(circle at 35% 30%, #4a3728 0%, #1a0a00 70%);
       position: absolute;
-      transition: transform 0.05s linear;
+      transition: transform 0.05s linear, background 0.3s ease;
       box-shadow: 0 2px 6px rgba(0,0,0,0.4);
     }
     .googly-pupil::after {
@@ -133,14 +160,83 @@
   const right = createEye();
   container.appendChild(left.eye);
   container.appendChild(right.eye);
+
+  // Shadow element (stays on the "ground" when eyes are lifted)
+  const shadow = document.createElement('div');
+  shadow.id = 'googly-eyes-shadow';
+  const shadowLeft = document.createElement('div');
+  shadowLeft.className = 'shadow-eye';
+  const shadowRight = document.createElement('div');
+  shadowRight.className = 'shadow-eye';
+  shadow.appendChild(shadowLeft);
+  shadow.appendChild(shadowRight);
+
+  document.body.appendChild(shadow);
   document.body.appendChild(container);
 
-  // Add click animations
-  left.eye.addEventListener('click', () => playClickAnimation(left.eye, left.pupil));
-  right.eye.addEventListener('click', () => playClickAnimation(right.eye, right.pupil));
+  // Add click animations (only fire if not dragging)
+  let wasDragged = false;
+  left.eye.addEventListener('click', (e) => { if (!wasDragged) playClickAnimation(left.eye, left.pupil); });
+  right.eye.addEventListener('click', (e) => { if (!wasDragged) playClickAnimation(right.eye, right.pupil); });
   container.style.pointerEvents = 'auto';
 
-  function movePupil(eyeEl, pupilEl, mouseX, mouseY) {
+  // --- Drag & Drop ---
+  let isDragging = false;
+  let dragOffsetX = 0;
+  let dragOffsetY = 0;
+
+  function positionShadow() {
+    const rect = container.getBoundingClientRect();
+    shadow.style.left = (rect.left + rect.width * 0.15) + 'px';
+    shadow.style.top = (rect.top + rect.height * 0.85) + 'px';
+  }
+
+  container.addEventListener('mousedown', (e) => {
+    // Start drag
+    isDragging = true;
+    wasDragged = false;
+    const rect = container.getBoundingClientRect();
+    dragOffsetX = e.clientX - rect.left;
+    dragOffsetY = e.clientY - rect.top;
+    container.classList.add('dragging');
+    // Switch from right-anchored to left-anchored positioning
+    container.style.left = rect.left + 'px';
+    container.style.top = rect.top + 'px';
+    container.style.right = 'auto';
+    // Show shadow at pickup position
+    positionShadow();
+    shadow.classList.add('visible');
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    wasDragged = true;
+    let newX = e.clientX - dragOffsetX;
+    let newY = e.clientY - dragOffsetY;
+    // Clamp to viewport
+    const w = container.offsetWidth;
+    const h = container.offsetHeight;
+    newX = Math.max(0, Math.min(window.innerWidth - w, newX));
+    newY = Math.max(0, Math.min(window.innerHeight - h, newY));
+    container.style.left = newX + 'px';
+    container.style.top = newY + 'px';
+    // Move shadow to follow underneath
+    positionShadow();
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (isDragging) {
+      isDragging = false;
+      container.classList.remove('dragging');
+      shadow.classList.remove('visible');
+      // Reset wasDragged after a tick so click event can check it
+      setTimeout(() => { wasDragged = false; }, 0);
+    }
+  });
+  // --- End Drag & Drop ---
+
+  function movePupil(eyeEl, pupilEl, lidEl, mouseX, mouseY) {
     const rect = eyeEl.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
@@ -152,17 +248,36 @@
     const tx = dx * ratio;
     const ty = dy * ratio;
     pupilEl.style.transform = `translate(${tx}px, ${ty}px)`;
+
+    // Eyelid reacts to vertical gaze: looking up -> lid opens (lifts)
+    const normalizedY = ty / maxDist; // -1 (up) to +1 (down)
+    if (normalizedY < 0) {
+      // Looking up: lift the eyelid (scale down to reveal more eye)
+      const lift = Math.abs(normalizedY); // 0 to 1
+      lidEl.style.transform = `scaleY(${1 - lift * 0.6})`;
+    } else {
+      // Looking center or down: eyelid normal or slightly droops
+      const droop = normalizedY; // 0 to 1
+      lidEl.style.transform = `scaleY(${1 + droop * 0.3})`;
+    }
   }
 
   document.addEventListener('mousemove', (e) => {
-    movePupil(left.eye, left.pupil, e.clientX, e.clientY);
-    movePupil(right.eye, right.pupil, e.clientX, e.clientY);
+    // Drag handler runs separately above
+    movePupil(left.eye, left.pupil, left.lid, e.clientX, e.clientY);
+    movePupil(right.eye, right.pupil, right.lid, e.clientX, e.clientY);
   });
 
   // Blink randomly
+  let isBlinking = false;
   function blink(lidEl) {
+    isBlinking = true;
+    const currentTransform = lidEl.style.transform || 'scaleY(1)';
     lidEl.style.transform = 'scaleY(2.1)';
-    setTimeout(() => { lidEl.style.transform = 'scaleY(1)'; }, 130);
+    setTimeout(() => {
+      lidEl.style.transform = currentTransform;
+      isBlinking = false;
+    }, 130);
   }
 
   function scheduleBlinkLeft() {
@@ -182,10 +297,36 @@
   scheduleBlinkLeft();
   scheduleBlinkRight();
 
-  // Listen for toggle messages from popup
+  // Helper: lighten a hex color
+  function lightenColor(hex, percent) {
+    const num = parseInt(hex.replace('#', ''), 16);
+    const r = Math.min(255, (num >> 16) + Math.round(255 * percent / 100));
+    const g = Math.min(255, ((num >> 8) & 0x00FF) + Math.round(255 * percent / 100));
+    const b = Math.min(255, (num & 0x0000FF) + Math.round(255 * percent / 100));
+    return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
+  }
+
+  function applyPupilColor(color) {
+    const light = lightenColor(color, 40);
+    const bg = `radial-gradient(circle at 35% 30%, ${light} 0%, ${color} 70%)`;
+    left.pupil.style.background = bg;
+    right.pupil.style.background = bg;
+  }
+
+  // Load saved pupil color
+  chrome.storage.local.get(['pupilColor'], (result) => {
+    if (result.pupilColor) {
+      applyPupilColor(result.pupilColor);
+    }
+  });
+
+  // Listen for messages from popup
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg.type === 'toggle') {
       container.classList.toggle('hidden', !msg.visible);
+    }
+    if (msg.type === 'pupilColor') {
+      applyPupilColor(msg.color);
     }
   });
 })();

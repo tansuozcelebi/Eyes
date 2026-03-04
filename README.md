@@ -19,12 +19,21 @@ git clone https://github.com/tansuozcelebi/Eyes.git
 cd Eyes
 ```
 
-### 2. Chrome'da Yükleyin
+### 2. Tarayıcıda Yükleyin
 
+#### Chrome
 1. Chrome tarayıcısını açın
 2. Adres çubuğunda `chrome://extensions/` yazın
 3. Sağ üst köşede **"Geliştirici modu"** açın
 4. **"Açılı Uzantıyı Yükle"** butonuna tıklayın
+5. İndirdiğiniz proje klasörünü seçin
+6. Extension kuruldu! 🎉
+
+#### Microsoft Edge
+1. Edge tarayıcısını açın
+2. Adres çubuğunda `edge://extensions/` yazın
+3. Sol alt köşede **"Geliştirici modu"** açın
+4. **"Paketi açılmış öğe yükle"** butonuna tıklayın
 5. İndirdiğiniz proje klasörünü seçin
 6. Extension kuruldu! 🎉
 
