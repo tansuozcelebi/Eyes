@@ -253,6 +253,39 @@
     padding: 8px;
     font-size: 10px;
     color: #c0b0a0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .reload-btn {
+    background: none;
+    border: 1.5px solid #e0d4c4;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 3px 8px;
+    font-size: 10px;
+    color: #8a7a6a;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .reload-btn:hover {
+    background: #fff3e0;
+    border-color: #ff8c42;
+    color: #ff8c42;
+  }
+
+  .reload-btn .icon {
+    display: inline-block;
+    transition: transform 0.4s ease;
+  }
+
+  .reload-btn:hover .icon {
+    transform: rotate(180deg);
   }
 </style>
 </head>
@@ -300,7 +333,10 @@
   </div>
 </div>
 
-<div class="footer">Made with ❤️ by Tansu Ozcelebi '26</div>
+<div class="footer">
+  <span>Made with ❤️ by Tansu Ozcelebi '26</span>
+  <button class="reload-btn" id="reloadBtn"><span class="icon">↻</span> Yenile</button>
+</div>
 
 <script src="popup.js"></script>
 </body>
