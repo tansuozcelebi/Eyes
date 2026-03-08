@@ -19,7 +19,6 @@
     }
     #googly-eyes-container.dragging {
       cursor: grabbing;
-      transform: scale(1.08) translateY(-6px);
       filter: drop-shadow(0 2px 6px rgba(0,0,0,0.10));
     }
     #googly-eyes-shadow {
@@ -128,6 +127,23 @@
     .googly-pupil.spin {
       animation: pupilSpin 0.6s ease-in-out;
     }
+    @keyframes bounce {
+      0% { opacity: 1; }
+      50% { opacity: 0.6; }
+      100% { opacity: 0.2; }
+    }
+    @keyframes pop {
+      0% { transform: scale(0.3) translateX(0) translateY(0); opacity: 0; }
+      50% { transform: scale(1.15); opacity: 1; }
+      100% { transform: scale(1) translateX(0) translateY(0); opacity: 1; }
+    }
+    #googly-eyes-container.bouncing {
+      animation: bounce 3s ease-in;
+      pointer-events: none;
+    }
+    #googly-eyes-container.popping {
+      animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
   `;
   document.head.appendChild(style);
 
@@ -176,8 +192,76 @@
 
   // Add click animations (only fire if not dragging)
   let wasDragged = false;
-  left.eye.addEventListener('click', (e) => { if (!wasDragged) playClickAnimation(left.eye, left.pupil); });
-  right.eye.addEventListener('click', (e) => { if (!wasDragged) playClickAnimation(right.eye, right.pupil); });
+  let isAmplified = false;
+  let lastClickTime = 0;
+  let clickCount = 0;
+  const DOUBLE_CLICK_DELAY = 300;
+
+  function onEyeClick(e) {
+    if (wasDragged) return;
+    
+    const now = Date.now();
+    if (now - lastClickTime < DOUBLE_CLICK_DELAY) {
+      clickCount++;
+    } else {
+      clickCount = 1;
+    }
+    lastClickTime = now;
+
+    if (clickCount === 2) {
+      performBounceAnimation();
+      clickCount = 0;
+    } else {
+      playClickAnimation(left.eye, left.pupil);
+      playClickAnimation(right.eye, right.pupil);
+    }
+  }
+
+  function performBounceAnimation() {
+    if (isAmplified) return;
+    isAmplified = true;
+    
+    // Save original position
+    const originalPos = {
+      left: container.getBoundingClientRect().left,
+      top: container.getBoundingClientRect().top
+    };
+
+    container.classList.add('bouncing');
+    shadow.classList.remove('visible');
+
+    // Bounce randomly around screen for 3 seconds
+    const bounceInterval = setInterval(() => {
+      const newX = Math.random() * (window.innerWidth - container.offsetWidth);
+      const newY = Math.random() * (window.innerHeight - container.offsetHeight);
+      container.style.left = newX + 'px';
+      container.style.top = newY + 'px';
+    }, 200);
+
+    // Stop bouncing and return to original position after 3 seconds
+    setTimeout(() => {
+      clearInterval(bounceInterval);
+      container.classList.remove('bouncing');
+      
+      // Switch to left/top positioning if needed
+      container.style.right = 'auto';
+      container.style.left = originalPos.left + 'px';
+      container.style.top = originalPos.top + 'px';
+      
+      // Pop effect
+      container.classList.add('popping');
+      
+      setTimeout(() => {
+        container.classList.remove('popping');
+        isAmplified = false;
+        // Show shadow again
+        shadow.classList.add('visible');
+      }, 400);
+    }, 3000);
+  }
+
+  left.eye.addEventListener('click', onEyeClick);
+  right.eye.addEventListener('click', onEyeClick);
   container.style.pointerEvents = 'auto';
 
   // --- Drag & Drop ---
@@ -203,6 +287,7 @@
     container.style.left = rect.left + 'px';
     container.style.top = rect.top + 'px';
     container.style.right = 'auto';
+    updateTransform();
     // Show shadow at pickup position
     positionShadow();
     shadow.classList.add('visible');
@@ -223,6 +308,7 @@
     container.style.top = newY + 'px';
     // Move shadow to follow underneath
     positionShadow();
+    updateTransform();
   });
 
   document.addEventListener('mouseup', () => {
@@ -230,11 +316,41 @@
       isDragging = false;
       container.classList.remove('dragging');
       shadow.classList.remove('visible');
+      updateTransform();
       // Reset wasDragged after a tick so click event can check it
       setTimeout(() => { wasDragged = false; }, 0);
     }
   });
   // --- End Drag & Drop ---
+
+  // --- Scroll Zoom ---
+  let scale = 1;
+  const MIN_SCALE = 0.1;
+  const MAX_SCALE = 3;
+
+  function updateTransform() {
+    let transform = `scale(${scale})`;
+    if (isDragging) {
+      transform += ' scale(1.08) translateY(-6px)';
+    }
+    container.style.transform = transform;
+    
+    // Update shadow scale along with container
+    shadow.style.transform = `scale(${scale * 0.7})`;
+  }
+
+  container.addEventListener('wheel', (e) => {
+    if (isAmplified) return; // Don't zoom during bounce animation
+    
+    e.preventDefault();
+    
+    // Scroll up = zoom in, scroll down = zoom out
+    const scaleFactor = e.deltaY > 0 ? 0.9 : 1.1;
+    scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale * scaleFactor));
+    updateTransform();
+  }, { passive: false });
+
+  // --- End Scroll Zoom ---
 
   function movePupil(eyeEl, pupilEl, lidEl, mouseX, mouseY) {
     const rect = eyeEl.getBoundingClientRect();
