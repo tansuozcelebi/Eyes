@@ -1,9 +1,10 @@
 const toggle = document.getElementById('toggleEyes');
 const colorPicker = document.getElementById('pupilColor');
+const eyeStyle = document.getElementById('eyeStyle');
 const previewPupils = document.querySelectorAll('.preview-pupil');
 
 // Load saved state
-chrome.storage.local.get(['eyesVisible', 'pupilColor'], (result) => {
+chrome.storage.local.get(['eyesVisible', 'pupilColor', 'eyeStyle'], (result) => {
   const visible = result.eyesVisible !== false; // default true
   toggle.checked = visible;
 
@@ -11,6 +12,8 @@ chrome.storage.local.get(['eyesVisible', 'pupilColor'], (result) => {
     colorPicker.value = result.pupilColor;
     updatePreviewPupils(result.pupilColor);
   }
+
+  eyeStyle.value = result.eyeStyle || 'classic';
 });
 
 toggle.addEventListener('change', () => {
@@ -47,6 +50,17 @@ colorPicker.addEventListener('input', () => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs[0]) {
       chrome.tabs.sendMessage(tabs[0].id, { type: 'pupilColor', color });
+    }
+  });
+});
+
+eyeStyle.addEventListener('change', () => {
+  const style = eyeStyle.value;
+  chrome.storage.local.set({ eyeStyle: style });
+
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (tabs[0]) {
+      chrome.tabs.sendMessage(tabs[0].id, { type: 'eyeStyle', style });
     }
   });
 });

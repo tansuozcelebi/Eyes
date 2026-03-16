@@ -55,6 +55,10 @@
     box-shadow: 0 1px 4px rgba(41, 168, 2, 0.4);
   }
 
+  .preview-pupil.delay {
+    animation-delay: -1.5s;
+  }
+
   .preview-pupil::after {
     content: '';
     width: 5px;
@@ -192,6 +196,48 @@
     border: 1.5px solid #f0e8d8;
   }
 
+  .select-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    border-radius: 12px;
+    padding: 12px 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    margin-bottom: 12px;
+    border: 1.5px solid #f0e8d8;
+    gap: 10px;
+  }
+
+  .select-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #3a2a1a;
+  }
+
+  .select-desc {
+    font-size: 11px;
+    color: #8a7a6a;
+    margin-top: 1px;
+  }
+
+  .style-select {
+    border: 1.5px solid #e6d8c8;
+    background: #fffaf2;
+    color: #3a2a1a;
+    border-radius: 8px;
+    padding: 6px 8px;
+    font-size: 12px;
+    font-family: 'Nunito', sans-serif;
+    outline: none;
+    min-width: 118px;
+  }
+
+  .style-select:focus {
+    border-color: #ff8c42;
+    box-shadow: 0 0 0 2px rgba(255, 140, 66, 0.15);
+  }
+
   .color-label {
     font-size: 13px;
     font-weight: 600;
@@ -212,8 +258,8 @@
   }
 
   .color-picker-wrapper input[type="color"] {
-    appearance: none;
     -webkit-appearance: none;
+    appearance: none;
     border: none;
     width: 36px;
     height: 36px;
@@ -299,7 +345,7 @@
     </div>
     <div class="preview-eye">
       <div class="preview-eyelid"></div>
-      <div class="preview-pupil" style="animation-delay: -1.5s"></div>
+      <div class="preview-pupil delay"></div>
     </div>
   </div>
   <h1>Çılgın Gözler</h1>
@@ -313,7 +359,7 @@
       <div class="toggle-desc">Bu sekmede gözleri aç/kapat</div>
     </div>
     <label class="toggle-switch">
-      <input type="checkbox" id="toggleEyes" checked>
+      <input type="checkbox" id="toggleEyes" checked aria-label="Gozleri goster" title="Gozleri goster">
       <span class="slider"></span>
     </label>
   </div>
@@ -324,8 +370,24 @@
       <div class="color-desc">İstediğin rengi seç</div>
     </div>
     <div class="color-picker-wrapper">
-      <input type="color" id="pupilColor" value="#1a0a00">
+      <input type="color" id="pupilColor" value="#1a0a00" aria-label="Goz bebegi rengi" title="Goz bebegi rengi">
     </div>
+  </div>
+
+  <div class="select-row">
+    <div>
+      <div class="select-label">Göz Tipi</div>
+      <div class="select-desc">Stili popup'tan değiştir</div>
+    </div>
+    <select id="eyeStyle" class="style-select" aria-label="Goz tipi sec" title="Goz tipi sec">
+      <option value="classic">Klasik</option>
+      <option value="woman">Kadın Gozu</option>
+      <option value="cat">Kedi Gozu</option>
+      <option value="dragon">Ejderha Gozu</option>
+      <option value="donkey">Eşek Gozu</option>
+      <option value="fish">Balık Gozu</option>
+      <option value="frog">Kurbağa Gozu</option>
+    </select>
   </div>
 
   <div class="info">
